@@ -1,7 +1,9 @@
 """
-Project AI
-Joost van Amersfoort - 10021248
-Otto Fabius - 5619858
+Authors: 
+Joost van Amersfoort - <joost.van.amersfoort@gmail.com>
+Otto Fabius - <ottofabius@gmail.com>
+
+#License: MIT
 """
 
 """This script trains an auto-encoder on the MNIST dataset and keeps track of the lowerbound"""
