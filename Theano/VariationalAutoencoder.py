@@ -1,6 +1,8 @@
 """
 Joost van Amersfoort - <joost.van.amersfoort@gmail.com>
 Otto Fabius - <ottofabius@gmail.com
+
+License: MIT
 """
 
 import numpy as np
