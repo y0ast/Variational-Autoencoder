@@ -96,7 +96,7 @@ class VA:
             gradvariables = [W1,W2,W3,W4,W5,b1,b2,b3,b4,b5]
 
 
-       logp = logpxz + prior
+        logp = logpxz + prior
 
         #Compute all the gradients
         derivatives = T.grad(logp,gradvariables)

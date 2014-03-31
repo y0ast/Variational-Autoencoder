@@ -11,14 +11,12 @@ Otto Fabius - <ottofabius@gmail.com>
 #python trainmnist.py -s mnist.npy
 
 import VariationalAutoencoder
-from loadsave import *
 import numpy as np
 import argparse
 import time
+import gzip, cPickle
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-p", "--params", help="Specify param file", default = False)
-parser.add_argument("-s", "--save", help="Specify file to save params", default = False)
 parser.add_argument("-d","--double", help="Train on hidden layer of previously trained AE - specify params", default = False)
 
 args = parser.parse_args()
@@ -57,13 +55,9 @@ print "Creating Theano functions"
 encoder.createGradientFunctions()
 
 print "Initializing weights and biases"
-if args.params:
-    print "Loading params from: {0}".format(args.params)
-    encoder.params, encoder.h, lowerbound, testlowerbound = load(args.params+'.npy')
-else:
-    encoder.initParams()
-    lowerbound = np.array([])
-    testlowerbound = np.array([])
+encoder.initParams()
+lowerbound = np.array([])
+testlowerbound = np.array([])
 
 begin = time.time()
 for j in xrange(1500):
@@ -79,7 +73,3 @@ for j in xrange(1500):
     if j % 5 == 0:
         print "Calculating test lowerbound"
         testlowerbound = np.append(testlowerbound,encoder.getLowerBound(x_test))
-
-    if args.save:
-        print "Saving params"
-        save(args.save,encoder.params,encoder.h,lowerbound,testlowerbound)
