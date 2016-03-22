@@ -7,6 +7,8 @@ There are three different versions of the implementation. The first two versions
 
 There are demos for all versions. Although it is necessary to put the data files in the right place and to import the right version of the Variational Auto-encoder. I assume this is no problem.
 
+MNIST is downloadable at http://deeplearning.net/data/mnist/mnist.pkl.gz
+
 Please report any bugs you find as an issue on this repository or by email, see header of code. I also happily answer any question.
 
 The code is MIT licensed.
