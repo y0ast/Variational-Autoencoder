@@ -10,30 +10,30 @@ from collections import OrderedDict
 epsilon = 1e-8
 
 def relu(x):
-    return T.nnet.softplus(x)#switch(x<0, 0, x)
-
+    return T.switch(x<0, 0, x)
 
 
 class VAE:
     """This class implements the Variational Auto Encoder"""
-    def __init__(self, continuous, hu_encoder, hu_decoder, n_latent, x_train, b1=0.05, b2=0.001, batch_size=100, learning_rate=0.01, lam=0):
+    def __init__(self, continuous, hu_encoder, hu_decoder, n_latent, x_train, b1=0.05, b2=0.001, batch_size=100, learning_rate=0.001, lam=0):
         self.continuous = continuous
         self.hu_encoder = hu_encoder
         self.hu_decoder = hu_decoder
         self.n_latent = n_latent
         [self.N, self.features] = x_train.shape
 
-        self.b1 = theano.shared(np.array(b1).astype(theano.config.floatX), name='b1')
-        self.b2 = theano.shared(np.array(b2).astype(theano.config.floatX), name='b2')
-        self.learning_rate = theano.shared(np.array(learning_rate).astype(theano.config.floatX), name="learning_rate")
-        self.lam=0
+        self.prng = np.random.RandomState(42)
+
+        self.b1 = np.float32(b1)
+        self.b2 = np.float32(b2)
+        self.learning_rate = np.float32(learning_rate)
+        self.lam = np.float32(lam)
 
         self.batch_size = batch_size
-        self.epsilon = 1e-8
 
-        sigma_init = 0.05
+        sigma_init = 0.01
 
-        create_weight = lambda dim_input, dim_output: np.random.normal(0, sigma_init, (dim_input, dim_output)).astype(theano.config.floatX)
+        create_weight = lambda dim_input, dim_output: self.prng.normal(0, sigma_init, (dim_input, dim_output)).astype(theano.config.floatX)
         create_bias = lambda dim_output: np.zeros(dim_output).astype(theano.config.floatX)
 
         # encoder
@@ -113,7 +113,7 @@ class VAE:
             log_sigma_decoder = T.dot(h_decoder, self.params['W_hxsigma']) + self.params['b_hxsigma']
 
             logpxz = (-(0.5 * np.log(2 * np.pi) + 0.5 * log_sigma_decoder) -
-                      0.5 * ((x - mu_decoder)**2 / T.exp(log_sigma_decoder))).sum(axis=1, keepdims=True)
+                      0.5 * ((x - reconstructed_x)**2 / T.exp(log_sigma_decoder))).sum(axis=1, keepdims=True)
         else:
             reconstructed_x = T.nnet.sigmoid(T.dot(h_decoder, self.params['W_hx']) + self.params['b_hx'].dimshuffle('x', 0))
             logpxz = - T.nnet.binary_crossentropy(reconstructed_x, x).sum(axis=1, keepdims=True)
@@ -125,7 +125,7 @@ class VAE:
         """This function takes as input the whole dataset and creates the entire model"""
         x = T.matrix("x")
 
-        epoch = T.scalar("epoch")
+        epoch = T.iscalar("epoch")
 
         batch_size = x.shape[0]
 
@@ -133,8 +133,8 @@ class VAE:
         z = self.sampler(mu, log_sigma)
         reconstructed_x, logpxz = self.decoder(x,z)
 
-        # Expectation of (logpz - logqz_x) over logqz_x is equal to the KLD:
-        KLD = 0.5 * T.sum(1 + log_sigma - mu**2 - T.exp(log_sigma))
+        # Expectation of (logpz - logqz_x) over logqz_x is equal to KLD (see appendix B):
+        KLD = 0.5 * T.sum(1 + log_sigma - mu**2 - T.exp(log_sigma), axis=1, keepdims=True)
 
         # Average over batch dimension
         logpx = T.mean(logpxz + KLD)
@@ -197,7 +197,7 @@ class VAE:
             new_m = self.b1 * m + (1 - self.b1) * gradient
             new_v = self.b2 * v + (1 - self.b2) * (gradient**2)
 
-            updates[parameter] = parameter + self.learning_rate * gamma * new_m / (T.sqrt(new_v + epsilon))
+            updates[parameter] = parameter + self.learning_rate * gamma * new_m / (T.sqrt(new_v) + epsilon)
 
             if 'W' in name:
                 # MAP on weights (same as L2 regularization)
