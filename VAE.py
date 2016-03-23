@@ -61,7 +61,7 @@ class VAE:
             W_hxsig = theano.shared(create_weight(hu_decoder, self.features), name='W_hxsigma')
             b_hxsig = theano.shared(create_bias(self.features), name='b_hxsigma')
 
-            self.params.update({'W_hxmu': W_hxmu, 'b_hxmu': b_hxmu, 'W_hxsig': W_hxsig, 'b_hx': b_hxsig})
+            self.params.update({'W_hxmu': W_hxmu, 'b_hxmu': b_hxmu, 'W_hxsigma': W_hxsig, 'b_hxsigma': b_hxsig})
         else:
             W_hx = theano.shared(create_weight(hu_decoder, self.features), name='W_hx')
             b_hx = theano.shared(create_bias(self.features), name='b_hx')

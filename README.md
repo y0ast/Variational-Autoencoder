@@ -1,15 +1,24 @@
 ##Variational Auto-encoder
 
-This is an implementation of the paper [Stochastic Gradient VB and the Variational Auto-Encoder](http://arxiv.org/abs/1312.6114) by D. Kingma and Prof. Dr. M. Welling.
+This is an improved implementation of the paper [Stochastic Gradient VB and the Variational Auto-Encoder](http://arxiv.org/abs/1312.6114) by D. Kingma and Prof. Dr. M. Welling. This code uses ReLUs and the adam optimizer, instead of sigmoids and adagrad. These changes make the network converge much faster.
 
+In my other [repository](https://github.com/y0ast/VAE-Torch) the implementation is in Torch7 (lua), this version is based on Theano (Python).
+To run the MNIST experiment:
 
-There are three different versions of the implementation. The first two versions follow the scikit-learn API, the third version is built with Theano and uses a custom API. The difference between the two scikit-learn versions is their dependence on scikit-learn itself. `VariationalAutoencoder_noSK.py` is indepedent of scikit-learn, while `VariationalAutoencoder_withSK.py` uses some private functions of scikit-learn, for batches and checking of inputs. I recommend using the `withSK` version as it's a tiny bit faster and extra checks don't hurt.
+`python run.py`
 
-There are demos for all versions. Although it is necessary to put the data files in the right place and to import the right version of the Variational Auto-encoder. I assume this is no problem.
+Setting the continuous boolean to true will make the script run the freyfaces experiment. It is necessary to tweak the batch_size and learning rate parameter for this to run smoothly.
 
-MNIST is downloadable at http://deeplearning.net/data/mnist/mnist.pkl.gz
+There used to be a scikit-learn implementation too, but it was very slow and outdated. You can still find it by looking at the code at [this commit](https://github.com/y0ast/Variational-Autoencoder/tree/5c06a7f14de7f872d837cd4268ee2d081a90056d)
 
-Please report any bugs you find as an issue on this repository or by email, see header of code. I also happily answer any question.
 
 The code is MIT licensed.
+
+
+
+
+
+
+
+
 
