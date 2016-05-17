@@ -24,10 +24,10 @@ class VAE:
 
         self.prng = np.random.RandomState(42)
 
-        self.b1 = np.float32(b1)
-        self.b2 = np.float32(b2)
-        self.learning_rate = np.float32(learning_rate)
-        self.lam = np.float32(lam)
+        self.b1 = b1
+        self.b2 = b2
+        self.learning_rate = learning_rate
+        self.lam = lam
 
         self.batch_size = batch_size
 
@@ -125,7 +125,7 @@ class VAE:
         """This function takes as input the whole dataset and creates the entire model"""
         x = T.matrix("x")
 
-        epoch = T.iscalar("epoch")
+        epoch = T.scalar("epoch")
 
         batch_size = x.shape[0]
 
@@ -194,8 +194,8 @@ class VAE:
                               self.m.values(), self.v.values())
 
         for name, parameter, gradient, m, v in values_iterable:
-            new_m = self.b1 * m + (1 - self.b1) * gradient
-            new_v = self.b2 * v + (1 - self.b2) * (gradient**2)
+            new_m = self.b1 * m + (1. - self.b1) * gradient
+            new_v = self.b2 * v + (1. - self.b2) * (gradient**2)
 
             updates[parameter] = parameter + self.learning_rate * gamma * new_m / (T.sqrt(new_v) + epsilon)
 
