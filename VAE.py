@@ -15,7 +15,7 @@ def relu(x):
 
 class VAE:
     """This class implements the Variational Auto Encoder"""
-    def __init__(self, continuous, hu_encoder, hu_decoder, n_latent, x_train, b1=0.05, b2=0.001, batch_size=100, learning_rate=0.001, lam=0):
+    def __init__(self, continuous, hu_encoder, hu_decoder, n_latent, x_train, b1=0.95, b2=0.999, batch_size=100, learning_rate=0.001, lam=0):
         self.continuous = continuous
         self.hu_encoder = hu_encoder
         self.hu_decoder = hu_decoder
@@ -113,16 +113,15 @@ class VAE:
             log_sigma_decoder = T.dot(h_decoder, self.params['W_hxsigma']) + self.params['b_hxsigma']
 
             logpxz = (-(0.5 * np.log(2 * np.pi) + 0.5 * log_sigma_decoder) -
-                      0.5 * ((x - reconstructed_x)**2 / T.exp(log_sigma_decoder))).sum(axis=1, keepdims=True)
+                      0.5 * ((x - reconstructed_x)**2 / T.exp(log_sigma_decoder))).sum(axis=1)
         else:
             reconstructed_x = T.nnet.sigmoid(T.dot(h_decoder, self.params['W_hx']) + self.params['b_hx'].dimshuffle('x', 0))
-            logpxz = - T.nnet.binary_crossentropy(reconstructed_x, x).sum(axis=1, keepdims=True)
+            logpxz = - T.nnet.binary_crossentropy(reconstructed_x, x).sum(axis=1)
 
         return reconstructed_x, logpxz
 
 
     def create_gradientfunctions(self, x_train):
-        """This function takes as input the whole dataset and creates the entire model"""
         x = T.matrix("x")
 
         epoch = T.scalar("epoch")
@@ -134,7 +133,7 @@ class VAE:
         reconstructed_x, logpxz = self.decoder(x,z)
 
         # Expectation of (logpz - logqz_x) over logqz_x is equal to KLD (see appendix B):
-        KLD = 0.5 * T.sum(1 + log_sigma - mu**2 - T.exp(log_sigma), axis=1, keepdims=True)
+        KLD = 0.5 * T.sum(1 + log_sigma - mu**2 - T.exp(log_sigma), axis=1)
 
         # Average over batch dimension
         logpx = T.mean(logpxz + KLD)
