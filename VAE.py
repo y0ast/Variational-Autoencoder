@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 
-import cPickle
+import pickle
 from collections import OrderedDict
 
 epsilon = 1e-8
@@ -139,7 +139,7 @@ class VAE:
         logpx = T.mean(logpxz + KLD)
 
         # Compute all the gradients
-        gradients = T.grad(logpx, self.params.values())
+        gradients = T.grad(logpx, list(self.params.values()))
 
         # Adam implemented as updates
         updates = self.get_adam_updates(gradients, epoch)
@@ -170,15 +170,15 @@ class VAE:
 
     def save_parameters(self, path):
         """Saves all the parameters in a way they can be retrieved later"""
-        cPickle.dump({name: p.get_value() for name, p in self.params.items()}, open(path + "/params.pkl", "wb"))
-        cPickle.dump({name: m.get_value() for name, m in self.m.items()}, open(path + "/m.pkl", "wb"))
-        cPickle.dump({name: v.get_value() for name, v in self.v.items()}, open(path + "/v.pkl", "wb"))
+        pickle.dump({name: p.get_value() for name, p in self.params.items()}, open(path + "/params.pkl", "wb"))
+        pickle.dump({name: m.get_value() for name, m in self.m.items()}, open(path + "/m.pkl", "wb"))
+        pickle.dump({name: v.get_value() for name, v in self.v.items()}, open(path + "/v.pkl", "wb"))
 
     def load_parameters(self, path):
         """Load the variables in a shared variable safe way"""
-        p_list = cPickle.load(open(path + "/params.pkl", "rb"))
-        m_list = cPickle.load(open(path + "/m.pkl", "rb"))
-        v_list = cPickle.load(open(path + "/v.pkl", "rb"))
+        p_list = pickle.load(open(path + "/params.pkl", "rb"))
+        m_list = pickle.load(open(path + "/m.pkl", "rb"))
+        v_list = pickle.load(open(path + "/v.pkl", "rb"))
 
         for name in p_list.keys():
             self.params[name].set_value(p_list[name].astype(theano.config.floatX))

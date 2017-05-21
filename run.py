@@ -2,7 +2,7 @@ import numpy as np
 import time
 import os
 from VAE import VAE
-import cPickle
+import pickle
 import gzip
 
 np.random.seed(42)
@@ -14,23 +14,23 @@ continuous = False
 n_epochs = 40
 
 if continuous:
-    print "Loading Freyface data"
+    print("Loading Freyface data")
     # Retrieved from: http://deeplearning.net/data/mnist/mnist.pkl.gz
     f = open('freyfaces.pkl', 'rb')
-    x = cPickle.load(f)
+    x = pickle.load(f, encoding='latin1')
     f.close()
     x_train = x[:1500]
     x_valid = x[1500:]
 else:
-    print "Loading MNIST data"
+    print("Loading MNIST data")
     # Retrieved from: http://deeplearning.net/data/mnist/mnist.pkl.gz
     f = gzip.open('mnist.pkl.gz', 'rb')
-    (x_train, t_train), (x_valid, t_valid), (x_test, t_test) = cPickle.load(f)
+    (x_train, t_train), (x_valid, t_valid), (x_test, t_test) = pickle.load(f, encoding='latin1')
     f.close()
 
 path = "./"
 
-print "instantiating model"
+print("instantiating model")
 model = VAE(continuous, hu_encoder, hu_decoder, n_latent, x_train)
 
 
@@ -39,13 +39,13 @@ epoch = 0
 LB_list = []
 
 if os.path.isfile(path + "params.pkl"):
-    print "Restarting from earlier saved parameters!"
+    print("Restarting from earlier saved parameters!")
     model.load_parameters(path)
     LB_list = np.load(path + "LB_list.npy")
     epoch = len(LB_list)
 
 if __name__ == "__main__":
-    print "iterating"
+    print("iterating")
     while epoch < n_epochs:
         epoch += 1
         start = time.time()
@@ -59,12 +59,12 @@ if __name__ == "__main__":
         LB /= len(batch_order)
 
         LB_list = np.append(LB_list, LB)
-        print "Epoch {0} finished. LB: {1}, time: {2}".format(epoch, LB, time.time() - start)
+        print("Epoch {0} finished. LB: {1}, time: {2}".format(epoch, LB, time.time() - start))
         np.save(path + "LB_list.npy", LB_list)
         model.save_parameters(path)
 
     valid_LB = model.likelihood(x_valid)
-    print "LB on validation set: {0}".format(valid_LB)
+    print("LB on validation set: {0}".format(valid_LB))
 
 
 
