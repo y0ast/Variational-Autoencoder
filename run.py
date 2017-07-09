@@ -63,7 +63,7 @@ if __name__ == "__main__":
         np.save(path + "LB_list.npy", LB_list)
         model.save_parameters(path)
 
-    valid_LB = model.likelihood(x_valid)
+    valid_LB = model.likelihood(x_valid.astype(theano.config.floatX))
     print("LB on validation set: {0}".format(valid_LB))
 
 
